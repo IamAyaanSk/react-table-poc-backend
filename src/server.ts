@@ -4,6 +4,7 @@ import express from "express";
 import helmet from "helmet";
 import cors from "cors";
 import { PrismaClient } from "@prisma/client";
+import getOrderByArray from "./utils/getOrderByArray";
 
 const server = express();
 const port = 1337;
@@ -26,13 +27,32 @@ server.get("/ledgers", async (req, res) => {
     ? parseInt(req.query.pageSize as string)
     : 10;
 
+  const sortBy = req.query.sort_by?.toString() || "";
+  const orderByArray = getOrderByArray(sortBy);
+
+  const purpose = req.query.purpose?.toString() || "";
+  const type = req.query.type?.toString() || "";
+
+  // Generate where clause
+  const whereClause: Record<string, Record<string, string[]>> = {};
+  if (purpose) {
+    whereClause.purpose = { in: purpose.split(",") };
+  }
+  if (type) {
+    whereClause.type = { in: type.split(",") };
+  }
+
   try {
     const [ledgerRecords, totalRecords] = await Promise.all([
       prisma.ledger.findMany({
         skip: (page - 1) * pageSize,
         take: pageSize,
+        orderBy: orderByArray,
+        where: whereClause,
       }),
-      prisma.ledger.count(),
+      prisma.ledger.count({
+        where: whereClause,
+      }),
     ]);
 
     console.log("Endpoint hit for", page, pageSize);
