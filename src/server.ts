@@ -23,8 +23,8 @@ server.use(
 
 server.get("/ledgers", async (req, res) => {
   const page = req.query.page ? parseInt(req.query.page as string) : 1;
-  const pageSize = req.query.pageSize
-    ? parseInt(req.query.pageSize as string)
+  const pageSize = req.query.page_size
+    ? parseInt(req.query.page_size as string)
     : 10;
 
   const sortBy = req.query.sort_by?.toString() || "";
@@ -32,15 +32,35 @@ server.get("/ledgers", async (req, res) => {
 
   const purpose = req.query.purpose?.toString() || "";
   const type = req.query.type?.toString() || "";
+  const referenceId = req.query.reference_id?.toString() || "";
+
+  const fromDate = req.query.from_date
+    ? new Date(req.query.from_date.toString())
+    : new Date();
+  const toDate = req.query.to_date
+    ? new Date(req.query.to_date.toString())
+    : new Date();
 
   // Generate where clause
-  const whereClause: Record<string, Record<string, string[]>> = {};
+  const whereClause: Record<
+    string,
+    Record<string, string[] | string | Date>
+  > = {};
   if (purpose) {
     whereClause.purpose = { in: purpose.split(",") };
   }
   if (type) {
     whereClause.type = { in: type.split(",") };
   }
+
+  if (referenceId) {
+    whereClause.referenceId = { contains: referenceId };
+  }
+
+  whereClause.dateTime = {
+    gte: fromDate,
+    lte: toDate,
+  };
 
   try {
     const [ledgerRecords, totalRecords] = await Promise.all([
@@ -54,6 +74,9 @@ server.get("/ledgers", async (req, res) => {
         where: whereClause,
       }),
     ]);
+
+    console.log("Where clause", whereClause);
+    console.log(fromDate.toISOString(), toDate.toISOString());
 
     console.log("Endpoint hit for", page, pageSize);
 
