@@ -32,7 +32,7 @@ server.get("/ledgers", async (req, res) => {
 
   const purpose = req.query.purpose?.toString() || "";
   const type = req.query.type?.toString() || "";
-  const referenceId = req.query.reference_id?.toString() || "";
+  const referenceId = req.query.referenceId?.toString() || "";
 
   const fromDate = req.query.from_date
     ? new Date(req.query.from_date.toString())
