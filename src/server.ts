@@ -16,7 +16,7 @@ server.use(express.urlencoded({ extended: true }));
 
 server.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "*",
+    origin: process.env.CORS_ORIGIN,
     optionsSuccessStatus: 200,
   })
 );
