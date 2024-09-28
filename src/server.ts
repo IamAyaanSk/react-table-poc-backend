@@ -4,7 +4,7 @@ import express from "express";
 import helmet from "helmet";
 import cors from "cors";
 import { PrismaClient } from "@prisma/client";
-import getOrderByArray from "./utils/getOrderByArray";
+import getOrderByArray from "./utils/getOrderByArray.js";
 
 const server = express();
 const port = 1337;
