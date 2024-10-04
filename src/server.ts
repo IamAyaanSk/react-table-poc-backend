@@ -32,7 +32,7 @@ server.get("/ledgers", async (req, res) => {
 
   const purpose = req.query.purpose?.toString() || "";
   const type = req.query.type?.toString() || "";
-  const referenceId = req.query.referenceId?.toString() || "";
+  const searchQuery = req.query.search;
 
   const fromDate = req.query.fromDate
     ? new Date(req.query.fromDate.toString())
@@ -53,8 +53,11 @@ server.get("/ledgers", async (req, res) => {
     whereClause.type = { in: type.split(",") };
   }
 
-  if (referenceId) {
-    whereClause.referenceId = { contains: referenceId };
+  if (searchQuery) {
+    whereClause.referenceId = {
+      contains: searchQuery.toString(),
+      mode: "insensitive",
+    };
   }
 
   whereClause.dateTime = {
