@@ -58,6 +58,10 @@ server.get("/ledgers", async (req, res) => {
       contains: searchQuery.toString(),
       mode: "insensitive",
     };
+    whereClause.service = {
+      contains: searchQuery.toString(),
+      mode: "insensitive",
+    };
   }
 
   whereClause.dateTime = {
