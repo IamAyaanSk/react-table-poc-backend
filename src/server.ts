@@ -35,10 +35,10 @@ server.get("/ledgers", async (req, res) => {
   const searchQuery = req.query.search;
 
   const fromDate = req.query.fromDate
-    ? new Date(req.query.fromDate.toString())
+    ? new Date(parseInt(req.query.fromDate.toString()))
     : new Date();
   const toDate = req.query.toDate
-    ? new Date(req.query.toDate.toString())
+    ? new Date(parseInt(req.query.toDate.toString()))
     : new Date();
 
   // Generate where clause
