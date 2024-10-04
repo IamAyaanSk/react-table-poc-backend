@@ -42,10 +42,7 @@ server.get("/ledgers", async (req, res) => {
     : new Date();
 
   // Generate where clause
-  const whereClause: Record<
-    string,
-    Record<string, string[] | string | Date>
-  > = {};
+  const whereClause: any = {};
   if (purpose) {
     whereClause.purpose = { in: purpose.split(",") };
   }
@@ -54,14 +51,20 @@ server.get("/ledgers", async (req, res) => {
   }
 
   if (searchQuery) {
-    whereClause.referenceId = {
-      contains: searchQuery.toString(),
-      mode: "insensitive",
-    };
-    whereClause.service = {
-      contains: searchQuery.toString(),
-      mode: "insensitive",
-    };
+    whereClause.OR = [
+      {
+        referenceId: {
+          contains: searchQuery.toString(),
+          mode: "insensitive",
+        },
+      },
+      {
+        service: {
+          contains: searchQuery.toString(),
+          mode: "insensitive",
+        },
+      },
+    ];
   }
 
   whereClause.dateTime = {
