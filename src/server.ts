@@ -23,22 +23,22 @@ server.use(
 
 server.get("/ledgers", async (req, res) => {
   const page = req.query.page ? parseInt(req.query.page as string) : 1;
-  const pageSize = req.query.page_size
-    ? parseInt(req.query.page_size as string)
+  const pageSize = req.query.pageSize
+    ? parseInt(req.query.pageSize as string)
     : 10;
 
-  const sortBy = req.query.sort_by?.toString() || "";
+  const sortBy = req.query.sortBy?.toString() || "";
   const orderByArray = getOrderByArray(sortBy);
 
   const purpose = req.query.purpose?.toString() || "";
   const type = req.query.type?.toString() || "";
   const referenceId = req.query.referenceId?.toString() || "";
 
-  const fromDate = req.query.from_date
-    ? new Date(req.query.from_date.toString())
+  const fromDate = req.query.fromDate
+    ? new Date(req.query.fromDate.toString())
     : new Date();
-  const toDate = req.query.to_date
-    ? new Date(req.query.to_date.toString())
+  const toDate = req.query.toDate
+    ? new Date(req.query.toDate.toString())
     : new Date();
 
   // Generate where clause
