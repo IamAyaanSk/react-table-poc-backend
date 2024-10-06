@@ -23,6 +23,8 @@ server.use(
 );
 
 server.get("/ledgers", async (req, res) => {
+  const rawQueryParams = req.url.split("?")[1];
+  console.log(qs.parse(rawQueryParams));
   console.log(req.query);
   const page = req.query.page ? parseInt(req.query.page as string) : 1;
   const pageSize = req.query.pageSize
