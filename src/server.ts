@@ -33,12 +33,13 @@ server.get("/ledgers", async (req, res) => {
   const purpose = req.query.purpose?.toString() || "";
   const type = req.query.type?.toString() || "";
   const searchQuery = req.query.search;
+  console.log(type, purpose);
 
-  const fromDate = req.query.fromDate
-    ? new Date(parseInt(req.query.fromDate.toString()))
+  const startDate = req.query.startDate
+    ? new Date(parseInt(req.query.startDate.toString()))
     : new Date();
-  const toDate = req.query.toDate
-    ? new Date(parseInt(req.query.toDate.toString()))
+  const endDate = req.query.endDate
+    ? new Date(parseInt(req.query.endDate.toString()))
     : new Date();
 
   // Generate where clause
@@ -68,8 +69,8 @@ server.get("/ledgers", async (req, res) => {
   }
 
   whereClause.dateTime = {
-    gte: fromDate,
-    lte: toDate,
+    gte: startDate,
+    lte: endDate,
   };
 
   try {
@@ -86,7 +87,7 @@ server.get("/ledgers", async (req, res) => {
     ]);
 
     console.log("Where clause", whereClause);
-    console.log(fromDate.toISOString(), toDate.toISOString());
+    console.log(startDate.toISOString(), endDate.toISOString());
 
     console.log("Endpoint hit for", page, pageSize);
 
