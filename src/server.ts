@@ -5,6 +5,7 @@ import helmet from "helmet";
 import cors from "cors";
 import { PrismaClient } from "@prisma/client";
 import getOrderByArray from "./utils/getOrderByArray.js";
+import qs from "qs";
 
 const server = express();
 const port = 1337;
@@ -22,6 +23,7 @@ server.use(
 );
 
 server.get("/ledgers", async (req, res) => {
+  console.log(req.query);
   const page = req.query.page ? parseInt(req.query.page as string) : 1;
   const pageSize = req.query.pageSize
     ? parseInt(req.query.pageSize as string)
