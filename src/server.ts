@@ -37,12 +37,12 @@ server.get("/ledgers", async (req, res) => {
       error: validatedqueryParams.error.errors[0].message,
     });
 
-  const startDatTimeStamp = validatedqueryParams.data.startDate;
+  const startDateTimeStamp = validatedqueryParams.data.startDate;
   const endDateTimeStamp = validatedqueryParams.data.endDate;
 
-  if (startDatTimeStamp && endDateTimeStamp) {
+  if (startDateTimeStamp && endDateTimeStamp) {
     const isDateRangeValid = isValidDateRange({
-      startDate: startDatTimeStamp,
+      startDate: startDateTimeStamp,
       endDate: endDateTimeStamp,
     });
 
@@ -89,8 +89,8 @@ server.get("/ledgers", async (req, res) => {
     ];
   }
 
-  if (startDatTimeStamp && endDateTimeStamp) {
-    const startDate = new Date(startDatTimeStamp);
+  if (startDateTimeStamp && endDateTimeStamp) {
+    const startDate = new Date(startDateTimeStamp);
     const endDate = new Date(endDateTimeStamp);
     whereClause.dateTime = {
       gte: startDate,
