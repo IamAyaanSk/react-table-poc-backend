@@ -29,6 +29,7 @@ server.use(
 );
 
 server.get("/ledgers", async (req, res) => {
+  console.log("Received request at /ledgers");
   const validatedqueryParams = walletLedgerSchema.safeParse(req.query);
 
   if (validatedqueryParams.error)
@@ -36,18 +37,23 @@ server.get("/ledgers", async (req, res) => {
       error: validatedqueryParams.error.errors[0].message,
     });
 
-  const isDateRangeValid = isValidDateRange({
-    startDate: validatedqueryParams.data.startDate,
-    endDate: validatedqueryParams.data.endDate,
-  });
+  const startDatTimeStamp = validatedqueryParams.data.startDate;
+  const endDateTimeStamp = validatedqueryParams.data.endDate;
 
-  if (!isDateRangeValid)
-    return res.status(400).json({
-      error: "Invlid date range",
+  if (startDatTimeStamp && endDateTimeStamp) {
+    const isDateRangeValid = isValidDateRange({
+      startDate: startDatTimeStamp,
+      endDate: endDateTimeStamp,
     });
 
-  const page = validatedqueryParams.data.page;
-  const pageSize = validatedqueryParams.data.pageSize;
+    if (!isDateRangeValid)
+      return res.status(400).json({
+        error: "Invlid date range",
+      });
+  }
+
+  const page = validatedqueryParams.data.page || 1;
+  const pageSize = validatedqueryParams.data.pageSize || 100;
 
   const sortBy = validatedqueryParams.data.sort;
   const orderByArray = sortBy && getOrderByArray(sortBy);
@@ -56,9 +62,6 @@ server.get("/ledgers", async (req, res) => {
   const type = validatedqueryParams.data.type;
 
   const searchQuery = validatedqueryParams.data.search;
-
-  const startDate = new Date(validatedqueryParams.data.startDate);
-  const endDate = new Date(validatedqueryParams.data.endDate);
 
   // Generate where clause
   const whereClause: any = {};
@@ -86,10 +89,14 @@ server.get("/ledgers", async (req, res) => {
     ];
   }
 
-  whereClause.dateTime = {
-    gte: startDate,
-    lte: endDate,
-  };
+  if (startDatTimeStamp && endDateTimeStamp) {
+    const startDate = new Date(startDatTimeStamp);
+    const endDate = new Date(endDateTimeStamp);
+    whereClause.dateTime = {
+      gte: startDate,
+      lte: endDate,
+    };
+  }
 
   try {
     const [ledgerRecords, totalRecords] = await Promise.all([

@@ -15,13 +15,15 @@ export const createDataTableQueryParamsZodSchema = <T extends z.ZodRawShape>({
     page: z
       .string()
       .regex(/^\d+$/, "Page must be a positive integer")
-      .transform(Number),
+      .transform(Number)
+      .optional(),
     pageSize: z
       .string()
       .refine((size) => pageSizes.includes(size), {
         message: "Invalid page size",
       })
-      .transform(Number),
+      .transform(Number)
+      .optional(),
     search: z.string().optional(),
     sort: z
       .array(
@@ -50,7 +52,8 @@ export const createDataTableQueryParamsZodSchema = <T extends z.ZodRawShape>({
           message: "Invalid timestamp",
         }
       )
-      .transform(Number),
+      .transform(Number)
+      .optional(),
     endDate: z
       .string()
       .regex(/^\d+$/, { message: "Must be a valid timestamp format" })
@@ -63,7 +66,8 @@ export const createDataTableQueryParamsZodSchema = <T extends z.ZodRawShape>({
           message: "Invalid timestamp",
         }
       )
-      .transform(Number),
+      .transform(Number)
+      .optional(),
   });
 
   return baseSchema.extend(filterSchema);
