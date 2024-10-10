@@ -6,8 +6,14 @@ import cors from "cors";
 import { PrismaClient } from "@prisma/client";
 import getOrderByArray from "./utils/getOrderByArray.js";
 import qs from "qs";
+import { walletLedgerSchema } from "./zod/ledgerDataTableQueryParamsZod.js";
+import { isValidDateRange } from "./utils/isValidDateRange.js";
 
 const server = express();
+server.set("query parser", function (str: string) {
+  return qs.parse(str, { comma: true });
+});
+
 const port = 1337;
 const prisma = new PrismaClient();
 
@@ -23,49 +29,57 @@ server.use(
 );
 
 server.get("/ledgers", async (req, res) => {
-  const rawQueryParams = req.url.split("?")[1];
-  console.log(qs.parse(rawQueryParams));
-  console.log(req.query);
-  const page = req.query.page ? parseInt(req.query.page as string) : 1;
-  const pageSize = req.query.pageSize
-    ? parseInt(req.query.pageSize as string)
-    : 10;
+  const validatedqueryParams = walletLedgerSchema.safeParse(req.query);
 
-  const sortBy = req.query.sortBy?.toString() || "";
-  const orderByArray = getOrderByArray(sortBy);
+  if (validatedqueryParams.error)
+    return res.status(400).json({
+      error: validatedqueryParams.error.errors[0].message,
+    });
 
-  const purpose = req.query.purpose?.toString() || "";
-  const type = req.query.type?.toString() || "";
-  const searchQuery = req.query.search;
-  console.log(type, purpose);
+  const isDateRangeValid = isValidDateRange({
+    startDate: validatedqueryParams.data.startDate,
+    endDate: validatedqueryParams.data.endDate,
+  });
 
-  const startDate = req.query.startDate
-    ? new Date(parseInt(req.query.startDate.toString()))
-    : new Date();
-  const endDate = req.query.endDate
-    ? new Date(parseInt(req.query.endDate.toString()))
-    : new Date();
+  if (!isDateRangeValid)
+    return res.status(400).json({
+      error: "Invlid date range",
+    });
+
+  const page = validatedqueryParams.data.page;
+  const pageSize = validatedqueryParams.data.pageSize;
+
+  const sortBy = validatedqueryParams.data.sort;
+  const orderByArray = sortBy && getOrderByArray(sortBy);
+
+  const purpose = validatedqueryParams.data.purpose;
+  const type = validatedqueryParams.data.type;
+
+  const searchQuery = validatedqueryParams.data.search;
+
+  const startDate = new Date(validatedqueryParams.data.startDate);
+  const endDate = new Date(validatedqueryParams.data.endDate);
 
   // Generate where clause
   const whereClause: any = {};
-  if (purpose) {
-    whereClause.purpose = { in: purpose.split(",") };
+  if (purpose && purpose.length > 0) {
+    whereClause.purpose = { in: purpose };
   }
-  if (type) {
-    whereClause.type = { in: type.split(",") };
+  if (type && type.length > 0) {
+    whereClause.type = { in: type };
   }
 
   if (searchQuery) {
     whereClause.OR = [
       {
         referenceId: {
-          contains: searchQuery.toString(),
+          contains: searchQuery,
           mode: "insensitive",
         },
       },
       {
         service: {
-          contains: searchQuery.toString(),
+          contains: searchQuery,
           mode: "insensitive",
         },
       },
@@ -90,16 +104,12 @@ server.get("/ledgers", async (req, res) => {
       }),
     ]);
 
-    console.log("Where clause", whereClause);
-    console.log(startDate.toISOString(), endDate.toISOString());
-
-    console.log("Endpoint hit for", page, pageSize);
-
     res.json({
       data: ledgerRecords,
       totalRecords,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error });
   }
 });

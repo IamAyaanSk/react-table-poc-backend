@@ -1,8 +1,7 @@
-export default function getOrderByArray(sortingParams: string) {
-  if (!sortingParams) return;
+export default function getOrderByArray(sortingParams: string[]) {
   const initialArray: Record<string, string>[] = [];
-  const orderByArray = sortingParams.split(",").reduce((acc, curr) => {
-    let [key, value] = curr.split(":");
+  const orderByArray = sortingParams.reduce((acc, curr) => {
+    let [key, value] = curr.split("-");
 
     acc.push({
       [key]: value,
