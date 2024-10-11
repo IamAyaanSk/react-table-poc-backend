@@ -1,7 +1,15 @@
 import { z } from "zod";
 import { createDataTableQueryParamsZodSchema } from "./common.js";
 
-const walletLedgerSortFields = ["amount", "openingBalance", "closingBalance"];
+// List available sort filters for the route
+const walletLedgerSortFields = [
+  "amount",
+  "openingBalance",
+  "closingBalance",
+  "dateTime",
+];
+
+// Define filter schemas here
 const walletLedgerFilterSchema = {
   type: z
     .array(
