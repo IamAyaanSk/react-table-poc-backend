@@ -3,7 +3,7 @@ dotenv.config();
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import getOrderByArray from "./utils/getOrderByArray.js";
 import qs from "qs";
 import { walletLedgerSchema } from "./zod/ledgerDataTableQueryParamsZod.js";
@@ -64,7 +64,7 @@ server.get("/ledgers", async (req, res) => {
   const searchQuery = validatedqueryParams.data.search;
 
   // Generate where clause
-  const whereClause: any = {};
+  const whereClause: Prisma.LedgerWhereInput = {};
   if (purpose && purpose.length > 0) {
     whereClause.purpose = { in: purpose };
   }
