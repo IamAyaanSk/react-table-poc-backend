@@ -29,7 +29,6 @@ server.use(
 );
 
 server.get("/ledgers", async (req, res) => {
-  console.log("Received request at /ledgers");
   const validatedqueryParams = walletLedgerSchema.safeParse(req.query);
 
   if (validatedqueryParams.error)
