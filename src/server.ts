@@ -51,8 +51,15 @@ server.get("/ledgers", async (req, res) => {
       });
   }
 
-  const page = validatedqueryParams.data.page || 1;
-  const pageSize = validatedqueryParams.data.pageSize || 100;
+  const page = validatedqueryParams.data.page;
+  const pageSize = validatedqueryParams.data.pageSize;
+
+  if (!page || !pageSize) {
+    return res.json({
+      data: [],
+      totalRecords: 0,
+    });
+  }
 
   const sortBy = validatedqueryParams.data.sort;
   const orderByArray = sortBy && getOrderByArray(sortBy);
