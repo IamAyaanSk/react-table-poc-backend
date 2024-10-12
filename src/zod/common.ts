@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const sortDirections = ["asc", "desc"];
 
-const createDateSchema = (areDatesOptional: boolean) => {
+const createDateSchema = () => {
   const dateSchema = z
     .string()
     .regex(/^\d+$/, { message: "Must be a valid timestamp format" })
@@ -15,9 +15,10 @@ const createDateSchema = (areDatesOptional: boolean) => {
         message: "Invalid timestamp",
       }
     )
-    .transform(Number);
+    .transform(Number)
+    .optional();
 
-  return areDatesOptional ? dateSchema.optional() : dateSchema;
+  return dateSchema;
 };
 
 export const createDataTableQueryParamsZodSchema = <T extends z.ZodRawShape>({
@@ -35,14 +36,16 @@ export const createDataTableQueryParamsZodSchema = <T extends z.ZodRawShape>({
     page: z
       .string()
       .regex(/^\d+$/, "Page must be a positive integer")
-      .transform(Number),
+      .transform(Number)
+      .optional(),
 
     pageSize: z
       .string()
       .refine((size) => pageSizes.includes(size), {
         message: "Invalid page size",
       })
-      .transform(Number),
+      .transform(Number)
+      .optional(),
 
     search: z.string().optional(),
     sort: z
@@ -61,8 +64,8 @@ export const createDataTableQueryParamsZodSchema = <T extends z.ZodRawShape>({
       )
       .optional(),
 
-    startDate: createDateSchema(areDatesOptional),
-    endDate: createDateSchema(areDatesOptional),
+    startDate: createDateSchema(),
+    endDate: createDateSchema(),
   });
 
   return baseSchema.extend(filterSchema);
