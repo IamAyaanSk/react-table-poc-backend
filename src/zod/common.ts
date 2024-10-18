@@ -23,7 +23,7 @@ const createDateSchema = (areDatesOptional: boolean) => {
 export const createDataTableQueryParamsZodSchema = <T extends z.ZodRawShape>({
   filterSchema,
   sortFields,
-  pageSizes = ["100", "200", "300", "400", "500", "1000"],
+  pageSizes = ["200", "400", "600", "800", "1000"],
   areDatesOptional = false,
 }: {
   filterSchema: T;
