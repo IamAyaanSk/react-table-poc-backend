@@ -98,7 +98,7 @@ server.get("/ledgers", async (req, res) => {
   }
 
   try {
-    const [ledgerRecords, totalRecords, totalAmount] = await Promise.all([
+    const [ledgerRecords, totalRecords] = await Promise.all([
       prisma.ledger.findMany({
         skip: (page - 1) * pageSize,
         take: pageSize,
@@ -108,20 +108,25 @@ server.get("/ledgers", async (req, res) => {
       prisma.ledger.count({
         where: whereClause,
       }),
-      prisma.ledger.aggregate({
-        _sum: {
-          amount: true,
-        },
-        where: whereClause,
-      }),
     ]);
 
-    console.log("Total Amount", totalAmount._sum.amount);
+    const { totalCreditAmount, totalDebitAmount } = ledgerRecords.reduce(
+      (totals, record) => {
+        if (record.type === "CREDIT") {
+          totals.totalCreditAmount += record.amount;
+        } else if (record.type === "DEBIT") {
+          totals.totalDebitAmount += record.amount;
+        }
+        return totals;
+      },
+      { totalCreditAmount: 0, totalDebitAmount: 0 }
+    );
 
     res.json({
       data: ledgerRecords,
       totalRecords,
-      totalAmount: totalAmount._sum.amount,
+      totalCreditAmount: totalCreditAmount,
+      totalDebitAmount: totalDebitAmount,
     });
   } catch (error) {
     console.log(error);
